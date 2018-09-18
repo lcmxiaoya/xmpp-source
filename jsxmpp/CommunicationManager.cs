@@ -719,20 +719,23 @@
                 try
                 {
                     CommonConfig.Logger.WriteInfo("开始自发自收");
-                    string selfJID = m_stringUserName + "@" + m_stringDomain + "/" + m_stringResource;
-                    ServiceRequestParam request = new ServiceRequestParam();
-                    request.serviceId = m_serviceIdForSelf;
-                    request.source = DateTime.Now.ToString("HHmmssfff");
-                    ServiceResponseData response = new ServiceResponseData();
-                    response.resultCode = 1;
-                    int result = syncRequestService(selfJID, request, 1, false, 5000, ref response);
-                    if (response.resultCode == 0)
+                    string selfJID = m_xmppClient != null ? m_xmppClient.Jid.ToString() : "";
+                    if (!string.IsNullOrEmpty(selfJID))
                     {
-                        m_sendForSelfErrorTimes = 0;
-                    }
-                    else
-                    {
-                        m_sendForSelfErrorTimes++;
+                        ServiceRequestParam request = new ServiceRequestParam();
+                        request.serviceId = m_serviceIdForSelf;
+                        request.source = DateTime.Now.ToString("HHmmssfff");
+                        ServiceResponseData response = new ServiceResponseData();
+                        response.resultCode = 1;
+                        int result = syncRequestService(selfJID, request, 1, false, 5000, ref response);
+                        if (response.resultCode == 0)
+                        {
+                            m_sendForSelfErrorTimes = 0;
+                        }
+                        else
+                        {
+                            m_sendForSelfErrorTimes++;
+                        }
                     }
                     CommonConfig.Logger.WriteInfo("完成自发自收，m_sendForSelfErrorTimes=" + m_sendForSelfErrorTimes);
                 }
