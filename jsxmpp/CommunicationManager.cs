@@ -125,7 +125,7 @@
                 {
                     if (!this.IsXmppOK)
                     {
-                        CommonConfig.Logger.WriteInfo(string.Format("连接状态异常，关闭连接：IsHasRosterOnline:{0},Connected:{1},m_sendErrorTimes:{2}", this.m_xmppClient.IsHasRosterOnline, this.m_xmppClient.Connected, this.m_sendErrorTimes));
+                        CommonConfig.Logger.WriteInfo(string.Format("连接状态异常，关闭连接：IsHasRosterOnline:{0},Connected:{1},m_sendErrorTimes:{2}", this.m_xmppClient != null ? this.m_xmppClient.IsHasRosterOnline : false, this.m_xmppClient != null ? this.m_xmppClient.Connected : false, this.m_sendErrorTimes));
                         if (this.ReconnectTimes > 2)
                         {
                             CommonConfig.Logger.WriteInfo("连续重连两次不成功，暴力退出！");
@@ -438,7 +438,7 @@
                         ServiceResponseData responseData = new ServiceResponseData
                         {
                             seqId = requestParam.seqId,
-                            message = message,
+                            message = "",
                             resultCode = 0,
                             serviceId = m_serviceIdForSelf 
                         };
