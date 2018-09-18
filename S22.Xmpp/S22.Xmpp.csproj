@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectType>local</ProjectType>
+    <ProjectVersion>7.10.377</ProjectVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{91E37392-FADA-4EAE-AD9B-EB48805F50D0}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <AssemblyName>S22.Xmpp</AssemblyName>
+    <OutputType>Library</OutputType>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Reference Include="Interop.UPNPLib">
+      <HintPath>..\dll\Interop.UPNPLib.dll</HintPath>
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="Client\FileTransferSettings.cs" />
+    <Compile Include="Client\XmppClient.cs" />
+    <Compile Include="CommonConfig.cs" />
+    <Compile Include="Core\ErrorEventArgs.cs" />
+    <Compile Include="LogTypeDefine.cs" />
+    <Compile Include="Extensions\JieShunIQ.cs" />
+    <Compile Include="Extensions\XmppExtension.cs" />
+    <Compile Include="Extensions\DataForms.cs" />
+    <Compile Include="Extensions\Dataforms\DataField.cs" />
+    <Compile Include="Extensions\Dataforms\BooleanField.cs" />
+    <Compile Include="Extensions\Dataforms\DataForm.cs" />
+    <Compile Include="Extensions\Dataforms\CancelForm.cs" />
+    <Compile Include="Extensions\Dataforms\DataFieldType.cs" />
+    <Compile Include="Extensions\Dataforms\DataFormFactory.cs" />
+    <Compile Include="Extensions\Dataforms\DataFormType.cs" />
+    <Compile Include="Extensions\Dataforms\FieldList.cs" />
+    <Compile Include="Extensions\Dataforms\FixedField.cs" />
+    <Compile Include="Extensions\Dataforms\HiddenField.cs" />
+    <Compile Include="Extensions\Dataforms\JidField.cs" />
+    <Compile Include="Extensions\Dataforms\JidMultiField.cs" />
+    <Compile Include="Extensions\Dataforms\ListField.cs" />
+    <Compile Include="Extensions\Dataforms\ListMultiField.cs" />
+    <Compile Include="Extensions\Dataforms\Option.cs" />
+    <Compile Include="Extensions\Dataforms\PasswordField.cs" />
+    <Compile Include="Extensions\Dataforms\RequestForm.cs" />
+    <Compile Include="Extensions\Dataforms\ResultForm.cs" />
+    <Compile Include="Extensions\Dataforms\SubmitForm.cs" />
+    <Compile Include="Extensions\Dataforms\TextField.cs" />
+    <Compile Include="Extensions\Dataforms\TextMultiField.cs" />
+    <Compile Include="Extensions\Dataforms\XmlCollection!1.cs" />
+    <Compile Include="Extensions\FeatureNegotiation.cs" />
+    <Compile Include="Extensions\Item.cs" />
+    <Compile Include="Extensions\IPAddressExtensions.cs" />
+    <Compile Include="Extensions\IInputFilter.cs" />
+    <Compile Include="Extensions\IDataStream.cs" />
+    <Compile Include="Extensions\Socks5Bytestreams.cs" />
+    <Compile Include="Extensions\Socks5\ATyp.cs" />
+    <Compile Include="Extensions\Socks5\AuthMethod.cs" />
+    <Compile Include="Extensions\Socks5\AuthRequest.cs" />
+    <Compile Include="Extensions\Socks5\AuthResponse.cs" />
+    <Compile Include="Extensions\Socks5\BinaryReaderExtensions.cs" />
+    <Compile Include="Extensions\Socks5\ByteBuilder.cs" />
+    <Compile Include="Extensions\Socks5\ClientGreeting.cs" />
+    <Compile Include="Extensions\Socks5\ReplyStatus.cs" />
+    <Compile Include="Extensions\Socks5\ServerGreeting.cs" />
+    <Compile Include="Extensions\Socks5\Socks5Client.cs" />
+    <Compile Include="Extensions\Socks5\Socks5Exception.cs" />
+    <Compile Include="Extensions\Socks5\Socks5Server.cs" />
+    <Compile Include="Extensions\Socks5\SocksCommand.cs" />
+    <Compile Include="Extensions\Socks5\SocksReply.cs" />
+    <Compile Include="Extensions\Socks5\SocksRequest.cs" />
+    <Compile Include="Extensions\Socks5\TcpListenerExtensions.cs" />
+    <Compile Include="Extensions\Streamhost.cs" />
+    <Compile Include="Extensions\Stun\BindingRequest.cs" />
+    <Compile Include="Extensions\Stun\BindingResponse.cs" />
+    <Compile Include="Extensions\Stun\StunClient.cs" />
+    <Compile Include="Extensions\Upnp\DeviceFinderCallback.cs" />
+    <Compile Include="Extensions\Upnp\UPnP.cs" />
+    <Compile Include="Extensions\InBandRegistration.cs" />
+    <Compile Include="Extensions\RegistrationCallback.cs" />
+    <Compile Include="Extensions\ChatState.cs" />
+    <Compile Include="Extensions\ChatStateChangedEventArgs.cs" />
+    <Compile Include="Extensions\ChatStateNotifications.cs" />
+    <Compile Include="Extensions\BytesTransferredEventArgs.cs" />
+    <Compile Include="Extensions\InBandBytestreams.cs" />
+    <Compile Include="Extensions\AvatarChangedEventArgs.cs" />
+    <Compile Include="Extensions\UserAvatar.cs" />
+    <Compile Include="Extensions\InitiationResult.cs" />
+    <Compile Include="Extensions\StreamInitiation.cs" />
+    <Compile Include="Extensions\FileMetaData.cs" />
+    <Compile Include="Extensions\FileTransfer.cs" />
+    <Compile Include="Extensions\FileTransferAbortedEventArgs.cs" />
+    <Compile Include="Extensions\FileTransferProgressEventArgs.cs" />
+    <Compile Include="Extensions\FileTransferRequest.cs" />
+    <Compile Include="Extensions\SIFileTransfer.cs" />
+    <Compile Include="Extensions\SISession.cs" />
+    <Compile Include="Extensions\TransferAbortedEventArgs.cs" />
+    <Compile Include="Extensions\Mood.cs" />
+    <Compile Include="Extensions\MoodChangedEventArgs.cs" />
+    <Compile Include="Extensions\UserMood.cs" />
+    <Compile Include="Extensions\ActivityChangedEventArgs.cs" />
+    <Compile Include="Extensions\GeneralActivity.cs" />
+    <Compile Include="Extensions\SpecificActivity.cs" />
+    <Compile Include="Extensions\UserActivity.cs" />
+    <Compile Include="Extensions\TuneEventArgs.cs" />
+    <Compile Include="Extensions\TuneInformation.cs" />
+    <Compile Include="Extensions\UserTune.cs" />
+    <Compile Include="Extensions\Pep.cs" />
+    <Compile Include="Extensions\BitsOfBinary.cs" />
+    <Compile Include="Extensions\BobData.cs" />
+    <Compile Include="Extensions\ServerIpCheck.cs" />
+    <Compile Include="HttpHelper.cs" />
+    <Compile Include="Im\IqEventArgs.cs" />
+    <Compile Include="Im\SubscriptionRequest.cs" />
+    <Compile Include="LogEntity.cs" />
+    <Compile Include="LogManage.cs" />
+    <Compile Include="XmppException.cs" />
+    <Compile Include="ErrorCondition.cs" />
+    <Compile Include="ErrorType.cs" />
+    <Compile Include="Core\Stanza.cs" />
+    <Compile Include="Core\Iq.cs" />
+    <Compile Include="Core\IqEventArgs.cs" />
+    <Compile Include="Core\IqType.cs" />
+    <Compile Include="Extensions\Extension.cs" />
+    <Compile Include="Extensions\IOutputFilter!1.cs" />
+    <Compile Include="Extensions\Identity.cs" />
+    <Compile Include="Extensions\ServiceDiscovery.cs" />
+    <Compile Include="Extensions\SoftwareVersion.cs" />
+    <Compile Include="Extensions\VersionInformation.cs" />
+    <Compile Include="Extensions\EntityCapabilities.cs" />
+    <Compile Include="Extensions\BlockingCommand.cs" />
+    <Compile Include="Extensions\Ping.cs" />
+    <Compile Include="Extensions\EntityTime.cs" />
+    <Compile Include="Extensions\Attention.cs" />
+    <Compile Include="Im\PrivacyRule.cs" />
+    <Compile Include="Im\GroupPrivacyRule.cs" />
+    <Compile Include="Im\JidPrivacyRule.cs" />
+    <Compile Include="Core\Message.cs" />
+    <Compile Include="Im\Message.cs" />
+    <Compile Include="Im\MessageEventArgs.cs" />
+    <Compile Include="Im\PrivacyGranularity.cs" />
+    <Compile Include="Im\PrivacyList.cs" />
+    <Compile Include="Im\Roster.cs" />
+    <Compile Include="Im\RosterItem.cs" />
+    <Compile Include="Im\RosterUpdatedEventArgs.cs" />
+    <Compile Include="Im\SubscriptionApprovedEventArgs.cs" />
+    <Compile Include="Im\SubscriptionPrivacyRule.cs" />
+    <Compile Include="Im\SubscriptionRefusedEventArgs.cs" />
+    <Compile Include="Im\SubscriptionRequestEventArgs.cs" />
+    <Compile Include="Im\SubscriptionState.cs" />
+    <Compile Include="Im\UnsubscribedEventArgs.cs" />
+    <Compile Include="Im\XmlDictionary.cs" />
+    <Compile Include="Jid.cs" />
+    <Compile Include="Core\MessageEventArgs.cs" />
+    <Compile Include="Core\Presence.cs" />
+    <Compile Include="Core\PresenceEventArgs.cs" />
+    <Compile Include="Core\Sasl\SaslMechanism.cs" />
+    <Compile Include="Core\Sasl\Mechanisms\SaslDigestMd5.cs" />
+    <Compile Include="Core\Sasl\Mechanisms\SaslPlain.cs" />
+    <Compile Include="Core\Sasl\Mechanisms\SaslScramSha1.cs" />
+    <Compile Include="Core\Sasl\SaslException.cs" />
+    <Compile Include="Core\Sasl\SaslFactory.cs" />
+    <Compile Include="Core\StreamParser.cs" />
+    <Compile Include="Xml.cs" />
+    <Compile Include="Core\XmppCore.cs" />
+    <Compile Include="Im\Availability.cs" />
+    <Compile Include="Im\ErrorEventArgs.cs" />
+    <Compile Include="Im\MessageType.cs" />
+    <Compile Include="Im\Presence.cs" />
+    <Compile Include="Im\PresenceType.cs" />
+    <Compile Include="Im\Status.cs" />
+    <Compile Include="Im\StatusEventArgs.cs" />
+    <Compile Include="Im\XmppIm.cs" />
+    <Compile Include="Util.cs" />
+    <Compile Include="XmppError.cs" />
+    <Compile Include="XmppErrorException.cs" />
+    <Compile Include="XmlHelper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="S22\" />
+  </ItemGroup>
+</Project>
