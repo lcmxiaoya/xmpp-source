@@ -208,6 +208,7 @@
                     Stanza stanza = this.stanzaQueue.Take(this.cancelDispatch.Token);
                     if (stanza is S22.Xmpp.Core.Iq)
                     {
+                        CommonConfig.Logger.WriteInfo("IQ消息出列");
                         S22.Xmpp.Core.Iq iq = stanza as S22.Xmpp.Core.Iq;
                         this.Iq.Raise<IqEventArgs>(this, new IqEventArgs(stanza as S22.Xmpp.Core.Iq));
                     }
@@ -217,17 +218,20 @@
                     }
                     else if (stanza is S22.Xmpp.Core.Presence)
                     {
+                        CommonConfig.Logger.WriteInfo("Presence消息出列");
                         this.Presence.Raise<PresenceEventArgs>(this, new PresenceEventArgs(stanza as S22.Xmpp.Core.Presence));
                     }
                 }
                 catch (OperationCanceledException exception)
                 {
-                    CommonConfig.Logger.WriteError(exception);
+                    CommonConfig.Logger.WriteError("消息出列过程出错",exception);
+                    //CommonConfig.Logger.WriteError(exception);
                     return;
                 }
                 catch (Exception exception2)
                 {
-                    CommonConfig.Logger.WriteError(exception2);
+                    CommonConfig.Logger.WriteError("消息出列过程出错", exception2);
+                    //CommonConfig.Logger.WriteError(exception2);
                 }
             }
         }
@@ -390,9 +394,9 @@
             Label_0007:
                 stopwatch = new Stopwatch();
                 stopwatch.Start();
-                CommonConfig.Logger.WriteInfo("读取流--开始。。。");
+                //CommonConfig.Logger.WriteInfo("读取流--开始。。。");
                 XmlElement element = this.parser.NextElement(new string[] { "iq", "message", "presence" });
-                CommonConfig.Logger.WriteInfo("读取流--解析Xml,耗时：" + stopwatch.ElapsedMilliseconds);
+                //CommonConfig.Logger.WriteInfo("读取流--解析Xml,耗时：" + stopwatch.ElapsedMilliseconds);
                 if (element["data"] == null)
                 {
                     CommonConfig.Logger.WriteInfo("接收到数据：" + element.OuterXml);

@@ -291,7 +291,14 @@
 
         public void disconnected()
         {
-            this.Close();
+            try
+            {
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                CommonConfig.Logger.WriteError("disconnected过程出错", ex);
+            }
         }
 
         public void Dispose()
@@ -327,10 +334,28 @@
                 {
                 }
             }
+            if (this.m_threadSelfCheck != null)
+            {
+                try
+                {
+                    this.m_threadSelfCheck.Abort();
+                }
+                catch
+                {
+                }
+            }
             this.m_threadWatch = null;
             this.m_threadCheck = null;
             this.m_threadPresence = null;
-            this.Close();
+            this.m_threadSelfCheck = null;
+            try
+            {
+                this.Close();
+            }
+            catch (Exception ex)
+            {
+                CommonConfig.Logger.WriteError("Dispose过程出错", ex);
+            }
         }
 
         private void fileTransferCallback(bool accepted, FileTransfer transfer)
@@ -420,6 +445,10 @@
             ServiceRequestParam requestParam = null;
             try
             {
+                string iqID = "";
+                if (e != null && e.IqInfo != null)
+                    iqID = e.IqInfo.Id;
+                CommonConfig.Logger.WriteInfo("接收到的数据推送，IqID=："+ iqID);
                 requestParam = JsonConvert.DeserializeObject<ServiceRequestParam>(XmlHelper.ResumeChar(innerText));
                 if (requestParam != null)
                 {
@@ -458,6 +487,7 @@
             }
             catch (Exception exception)
             {
+                CommonConfig.Logger.WriteError("接收到消息返回给业务系统出错", exception);
                 message = exception.Message;
                 num = 0x65;
             } 
@@ -715,7 +745,7 @@
             while (true)
             {
                 //1分钟检测一次
-                Thread.Sleep(60 * 1000);
+                Thread.Sleep(15 * 1000);
                 try
                 {
                     CommonConfig.Logger.WriteInfo("开始自发自收");
@@ -757,6 +787,7 @@
                 }
                 catch (Exception ex1)
                 {
+                    CommonConfig.Logger.WriteError("自发自收超过3次，关闭连接过程出错", ex1);
                 }
             }
         }

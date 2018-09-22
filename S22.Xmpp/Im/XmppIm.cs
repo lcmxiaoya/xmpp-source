@@ -552,6 +552,7 @@
             {
                 if (iq.Data["dreq"] != null)
                 {
+                    CommonConfig.Logger.WriteInfo("IM层收到iq请求消息");
                     this.IqRequestEvents.Raise<S22.Xmpp.Im.IqEventArgs>(this, new S22.Xmpp.Im.IqEventArgs(iq.From, iq));
                     return;
                 }
