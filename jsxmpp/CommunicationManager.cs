@@ -43,6 +43,10 @@
         private Thread m_threadWatch;
         private XmppClient m_xmppClient;
         private int ReconnectTimes = 0;
+        /// <summary>
+        /// 是否处于已连接状态
+        /// </summary>
+        private bool IsConnecting = false;
 
         public CommunicationManager(string domain, string username, string resource, string password, string recvFilePath, int port = 0x1466)
         {
@@ -91,7 +95,7 @@
                 if (this.m_threadSelfCheck == null)
                 {
                     this.m_threadSelfCheck = new Thread(new ThreadStart(this.SendForSelf));
-                    this.m_threadSelfCheck.IsBackground = true; 
+                    this.m_threadSelfCheck.IsBackground = true;
                 }
                 this.m_threadSelfCheck.Start();
                 CommonConfig.Logger.WriteInfo("自发自收线程启动");
@@ -125,7 +129,7 @@
                 {
                     if (!this.IsXmppOK)
                     {
-                        CommonConfig.Logger.WriteInfo(string.Format("连接状态异常，关闭连接：IsHasRosterOnline:{0},Connected:{1},m_sendErrorTimes:{2}", this.m_xmppClient != null ? this.m_xmppClient.IsHasRosterOnline : false, this.m_xmppClient != null ? this.m_xmppClient.Connected : false, this.m_sendErrorTimes));
+                        CommonConfig.Logger.WriteInfo(string.Format("连接状态异常，关闭连接：IsHasRosterOnline:{0},Connected:{1},m_sendErrorTimes:{2}", this.m_xmppClient.IsHasRosterOnline, this.m_xmppClient.Connected, this.m_sendErrorTimes));
                         if (this.ReconnectTimes > 2)
                         {
                             CommonConfig.Logger.WriteInfo("连续重连两次不成功，暴力退出！");
@@ -225,8 +229,10 @@
 
         private void Close()
         {
+            m_sendForSelfErrorTimes = 0;
             lock (this.m_lockConection)
             {
+                IsConnecting = false;
                 if (this.m_xmppClient != null)
                 {
                     try
@@ -278,6 +284,7 @@
                             Directory.CreateDirectory(CommonConfig.LogPath);
                         }
                         this.m_xmppClient.Connect(this.m_stringResource);
+                        IsConnecting = true;
                         this.ReconnectTimes = 0;
                     }
                     catch (Exception exception)
@@ -391,7 +398,7 @@
                     case Availability.Chat:
                         return 2;
                 }
-                return (int) availability;
+                return (int)availability;
             }
             return 0;
         }
@@ -469,11 +476,12 @@
                             seqId = requestParam.seqId,
                             message = "",
                             resultCode = 0,
-                            serviceId = m_serviceIdForSelf 
+                            serviceId = m_serviceIdForSelf
                         };
                         this.responseService(e.Jid.ToString(), responseData, e.IqInfo.Id, "", true);
                     }
-                    else {
+                    else
+                    {
                         //直接回复，返回失败，未实现
                         ServiceResponseData responseData = new ServiceResponseData
                         {
@@ -490,7 +498,7 @@
                 CommonConfig.Logger.WriteError("接收到消息返回给业务系统出错", exception);
                 message = exception.Message;
                 num = 0x65;
-            } 
+            }
         }
 
         private void m_xmppClient_IqResponseEvents(object sender, S22.Xmpp.Im.IqEventArgs e)
@@ -567,9 +575,12 @@
             }
             try
             {
-                IqType result = IqType.Result;
-                this.m_xmppClient.IqResponseJieShun(result, id, jsonData, crc, responseData.resultCode, mode, toUserJID, this.m_stringUserName + "@" + this.m_stringDomain + "/" + this.m_stringResource, null);
-                return 1;
+                if (IsXmppOK)
+                {
+                    IqType result = IqType.Result;
+                    this.m_xmppClient.IqResponseJieShun(result, id, jsonData, crc, responseData.resultCode, mode, toUserJID, this.m_stringUserName + "@" + this.m_stringDomain + "/" + this.m_stringResource, null);
+                    return 1;
+                }
             }
             catch (Exception exception)
             {
@@ -670,14 +681,17 @@
                 {
                     timeout = 0x1388;
                 }
-                Iq iq = this.m_xmppClient.IqRequestJieShun(toUserJID, jsonData, crc, str2, IqType.Get, timeout, requestParam.seqId);
-                stopwatch.Stop();
-                CommonConfig.Logger.WriteInfo("syncRequestService发送完成，耗时：" + stopwatch.ElapsedMilliseconds);
-                string str3 = iq.Data.Attributes["type"].Value;
+
                 responseData = new ServiceResponseData();
                 responseData.resultCode = result;
+
                 if (this.IsXmppOK)
                 {
+                    Iq iq = this.m_xmppClient.IqRequestJieShun(toUserJID, jsonData, crc, str2, IqType.Get, timeout, requestParam.seqId);
+                    stopwatch.Stop();
+                    CommonConfig.Logger.WriteInfo("syncRequestService发送完成，耗时：" + stopwatch.ElapsedMilliseconds);
+                    string str3 = iq.Data.Attributes["type"].Value;
+
                     if (str3.ToLower().Equals("error"))
                     {
                         responseData.message = iq.Data.InnerXml;
@@ -724,7 +738,7 @@
         {
             get
             {
-                if (!((this.m_xmppClient != null) && this.m_xmppClient.Connected))
+                if (!((this.m_xmppClient != null) && this.m_xmppClient.Connected && IsConnecting))
                 {
                     return false;
                 }
@@ -749,23 +763,20 @@
                 try
                 {
                     CommonConfig.Logger.WriteInfo("开始自发自收");
-                    string selfJID = m_xmppClient != null ? m_xmppClient.Jid.ToString() : "";
-                    if (!string.IsNullOrEmpty(selfJID))
+                    string selfJID = m_stringUserName + "@" + m_stringDomain + "/" + m_stringResource;
+                    ServiceRequestParam request = new ServiceRequestParam();
+                    request.serviceId = m_serviceIdForSelf;
+                    request.source = DateTime.Now.ToString("HHmmssfff");
+                    ServiceResponseData response = new ServiceResponseData();
+                    response.resultCode = 1;
+                    int result = syncRequestService(selfJID, request, 1, false, 5000, ref response);
+                    if (response.resultCode == 0)
                     {
-                        ServiceRequestParam request = new ServiceRequestParam();
-                        request.serviceId = m_serviceIdForSelf;
-                        request.source = DateTime.Now.ToString("HHmmssfff");
-                        ServiceResponseData response = new ServiceResponseData();
-                        response.resultCode = 1;
-                        int result = syncRequestService(selfJID, request, 1, false, 5000, ref response);
-                        if (response.resultCode == 0)
-                        {
-                            m_sendForSelfErrorTimes = 0;
-                        }
-                        else
-                        {
-                            m_sendForSelfErrorTimes++;
-                        }
+                        m_sendForSelfErrorTimes = 0;
+                    }
+                    else
+                    {
+                        m_sendForSelfErrorTimes++;
                     }
                     CommonConfig.Logger.WriteInfo("完成自发自收，m_sendForSelfErrorTimes=" + m_sendForSelfErrorTimes);
                 }
