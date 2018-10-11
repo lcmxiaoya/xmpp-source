@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "jsxmpp", "jsxmpp\jsxmpp.csp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "S22.Xmpp", "S22.Xmpp\S22.Xmpp.csproj", "{91E37392-FADA-4EAE-AD9B-EB48805F50D0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "Test\Test.csproj", "{B4A25032-DB15-4A3A-8B91-34B6611B97BF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,14 +27,6 @@ Global
 		{91E37392-FADA-4EAE-AD9B-EB48805F50D0}.Release|Any CPU.ActiveCfg = Release|x86
 		{91E37392-FADA-4EAE-AD9B-EB48805F50D0}.Release|x86.ActiveCfg = Release|x86
 		{91E37392-FADA-4EAE-AD9B-EB48805F50D0}.Release|x86.Build.0 = Release|x86
-		{B4A25032-DB15-4A3A-8B91-34B6611B97BF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{B4A25032-DB15-4A3A-8B91-34B6611B97BF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{B4A25032-DB15-4A3A-8B91-34B6611B97BF}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{B4A25032-DB15-4A3A-8B91-34B6611B97BF}.Debug|x86.Build.0 = Debug|Any CPU
-		{B4A25032-DB15-4A3A-8B91-34B6611B97BF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{B4A25032-DB15-4A3A-8B91-34B6611B97BF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{B4A25032-DB15-4A3A-8B91-34B6611B97BF}.Release|x86.ActiveCfg = Release|Any CPU
-		{B4A25032-DB15-4A3A-8B91-34B6611B97BF}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

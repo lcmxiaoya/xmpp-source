@@ -1125,7 +1125,7 @@
         {
             get
             {
-                if (DateTime.Now > this._lastCheckRosterTime.AddSeconds(302.0))
+                if (DateTime.Now > this._lastCheckRosterTime.AddSeconds(180))
                 {
                     return false;
                 }

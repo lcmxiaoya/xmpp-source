@@ -8,6 +8,7 @@
     using S22.Xmpp.Im;
     using System;
     using System.Collections;
+    using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.IO;
@@ -18,8 +19,10 @@
     public class CommunicationManager : IDisposable
     {
         private bool m_boolSendFileResult;
-        private Dictionary<string, ServiceRequestParam> m_dictionarySending = new Dictionary<string, ServiceRequestParam>();
-        private Dictionary<string, Availability> m_dictionaryState = new Dictionary<string, Availability>();
+        //将线程不安全的Dictionary改为线程安全
+        //private Dictionary<string, Availability> m_dictionaryState = new Dictionary<string, Availability>(); 
+        private ConcurrentDictionary<string, Availability> m_dictionaryState = new ConcurrentDictionary<string, Availability>();
+
         private FileTransferMonitor m_fileHandler;
         private int m_intPort = 0x1466;
         private Hashtable m_keyAndSource = new Hashtable();
@@ -48,6 +51,15 @@
         /// </summary>
         private bool IsConnecting = false;
 
+        /// <summary>
+        /// 初始化并且连接
+        /// </summary>
+        /// <param name="domain"></param>
+        /// <param name="username"></param>
+        /// <param name="resource"></param>
+        /// <param name="password"></param>
+        /// <param name="recvFilePath"></param>
+        /// <param name="port"></param>
         public CommunicationManager(string domain, string username, string resource, string password, string recvFilePath, int port = 0x1466)
         {
             try
@@ -122,22 +134,20 @@
         {
             while (true)
             {
-                Thread.Sleep(0x1f40);
+                Thread.Sleep(8000);
                 this.m_threadCheck_lastRunTime = DateTime.Now;
                 CommonConfig.Logger.WriteInfo("进入检测连接状态");
                 try
                 {
                     if (!this.IsXmppOK)
                     {
-                        CommonConfig.Logger.WriteInfo(string.Format("连接状态异常，关闭连接：IsHasRosterOnline:{0},Connected:{1},IsConnecting:{2}", (m_xmppClient!=null?this.m_xmppClient.IsHasRosterOnline.ToString():""), (m_xmppClient != null ? this.m_xmppClient.Connected.ToString():"false"), this.IsConnecting));
-                        
-                        //CommonConfig.Logger.WriteInfo(string.Format("连接状态异常，关闭连接：IsHasRosterOnline:{0},Connected:{1},m_sendErrorTimes:{2}", this.m_xmppClient.IsHasRosterOnline, this.m_xmppClient.Connected, this.m_sendErrorTimes));
+                        WriteConnectingStatusLog();
                         if (this.ReconnectTimes > 2)
                         {
                             CommonConfig.Logger.WriteInfo("连续重连两次不成功，暴力退出！");
                         }
                         this.Close();
-                        Thread.Sleep(0x3e8);
+                        Thread.Sleep(1000);
                         this.ReconnectTimes++;
                         this.connect();
                     }
@@ -221,7 +231,7 @@
             string key = e.Jid.Node + "@" + e.Jid.Domain;
             if (!this.m_dictionaryState.ContainsKey(key))
             {
-                this.m_dictionaryState.Add(key, e.Status.Availability);
+                this.m_dictionaryState.TryAdd(key, e.Status.Availability);
             }
             else
             {
@@ -583,6 +593,7 @@
                     this.m_xmppClient.IqResponseJieShun(result, id, jsonData, crc, responseData.resultCode, mode, toUserJID, this.m_stringUserName + "@" + this.m_stringDomain + "/" + this.m_stringResource, null);
                     return 1;
                 }
+                WriteConnectingStatusLog();
             }
             catch (Exception exception)
             {
@@ -719,7 +730,8 @@
                     return result;
                 }
                 responseData.resultCode = 0x194;
-                CommonConfig.Logger.WriteInfo(string.Format("未连接状态不发送数据，IsHasRosterOnline:{0},Connected:{1},m_sendErrorTimes:{2}", this.m_xmppClient.IsHasRosterOnline, this.m_xmppClient.Connected, this.m_sendErrorTimes));
+                CommonConfig.Logger.WriteInfo("未连接状态，不发送数据");
+                WriteConnectingStatusLog();
             }
             catch (Exception exception)
             {
@@ -736,15 +748,32 @@
             return result;
         }
 
+        /// <summary>
+        /// XMPP当前连接状态
+        /// </summary>
         public bool IsXmppOK
         {
             get
-            {
-                if (!((this.m_xmppClient != null) && this.m_xmppClient.Connected && IsConnecting))
+            { 
+                if (this.m_xmppClient != null && this.m_xmppClient.Connected && IsConnecting && this.m_xmppClient.IsHasRosterOnline)
                 {
-                    return false;
+                    return true;
                 }
-                return true;
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// 写当前连接状态的日志
+        /// </summary>
+        private void WriteConnectingStatusLog()
+        {
+            try
+            {
+                CommonConfig.Logger.WriteInfo(string.Format("当前连接状态，IsHasRosterOnline:{0},Connected:{1},IsConnecting:{2}", (this.m_xmppClient != null ? this.m_xmppClient.IsHasRosterOnline : false), (this.m_xmppClient != null ? this.m_xmppClient.Connected : false), this.IsConnecting));
+            }
+            catch (Exception ex)
+            {
             }
         }
 
@@ -760,8 +789,8 @@
         {
             while (true)
             {
-                //1分钟检测一次
-                Thread.Sleep(15 * 1000);
+                //60分钟检测一次
+                Thread.Sleep(60 * 1000);
                 try
                 {
                     CommonConfig.Logger.WriteInfo("开始自发自收");
