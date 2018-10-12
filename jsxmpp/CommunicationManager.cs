@@ -47,9 +47,9 @@
         private XmppClient m_xmppClient;
         private int ReconnectTimes = 0;
         /// <summary>
-        /// 是否处于已连接状态
+        /// 自发自收是否处于正常状态
         /// </summary>
-        private bool IsConnecting = false;
+        private bool SendForSelfStatusConnecting = false;
 
         /// <summary>
         /// 初始化并且连接
@@ -130,6 +130,9 @@
             }
         }
 
+        /// <summary>
+        /// 检测连接状态
+        /// </summary>
         private void CheckConnection()
         {
             while (true)
@@ -160,6 +163,9 @@
             }
         }
 
+        /// <summary>
+        /// 定时发送心跳（已过期）
+        /// </summary>
         private void CheckPresence()
         {
             while (true)
@@ -188,6 +194,9 @@
             }
         }
 
+        /// <summary>
+        /// 监控线程，用于监控是否有线程处于未运行状态
+        /// </summary>
         private void CheckWatch()
         {
             while (true)
@@ -226,6 +235,11 @@
             }
         }
 
+        /// <summary>
+        /// 好友状态发生变化
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void client_StatusChanged(object sender, StatusEventArgs e)
         {
             string key = e.Jid.Node + "@" + e.Jid.Domain;
@@ -239,12 +253,14 @@
             }
         }
 
+        /// <summary>
+        /// 关闭连接
+        /// </summary>
         private void Close()
         {
             m_sendForSelfErrorTimes = 0;
             lock (this.m_lockConection)
             {
-                IsConnecting = false;
                 if (this.m_xmppClient != null)
                 {
                     try
@@ -268,6 +284,10 @@
             }
         }
 
+        /// <summary>
+        /// 重新连接
+        /// </summary>
+        /// <returns></returns>
         public bool connect()
         {
             lock (this.m_lockConection)
@@ -296,7 +316,7 @@
                             Directory.CreateDirectory(CommonConfig.LogPath);
                         }
                         this.m_xmppClient.Connect(this.m_stringResource);
-                        IsConnecting = true;
+                        SendForSelfStatusConnecting = true;
                         this.ReconnectTimes = 0;
                     }
                     catch (Exception exception)
@@ -308,6 +328,9 @@
             return this.m_xmppClient.Connected;
         }
 
+        /// <summary>
+        /// 关闭连接，关闭后会自动重连
+        /// </summary>
         public void disconnected()
         {
             try
@@ -320,6 +343,9 @@
             }
         }
 
+        /// <summary>
+        /// 关闭并释放组件的资源，释放资源后不会自动重连，调用者可通过重新初始化组件来重建连接
+        /// </summary>
         public void Dispose()
         {
             CommonConfig.Logger.WriteInfo("释放Dispose组件");
@@ -392,6 +418,11 @@
             }
         }
 
+        /// <summary>
+        /// 获取连接状态
+        /// </summary>
+        /// <param name="toUserJID"></param>
+        /// <returns></returns>
         public int getConnectionStatus(string toUserJID)
         {
             int length = -1;
@@ -415,6 +446,11 @@
             return 0;
         }
 
+        /// <summary>
+        /// 获取数据校验值
+        /// </summary>
+        /// <param name="jsonData"></param>
+        /// <returns></returns>
         private int getDataCrc(string jsonData)
         {
             int num = 0;
@@ -467,7 +503,7 @@
                 string iqID = "";
                 if (e != null && e.IqInfo != null)
                     iqID = e.IqInfo.Id;
-                CommonConfig.Logger.WriteInfo("接收到的数据推送，IqID=："+ iqID);
+                CommonConfig.Logger.WriteInfo("接收到的数据推送，IqID=：" + iqID);
                 requestParam = JsonConvert.DeserializeObject<ServiceRequestParam>(XmlHelper.ResumeChar(innerText));
                 if (requestParam != null)
                 {
@@ -513,6 +549,11 @@
             }
         }
 
+        /// <summary>
+        /// xmpp异步响应
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void m_xmppClient_IqResponseEvents(object sender, S22.Xmpp.Im.IqEventArgs e)
         {
             string innerText = e.IqInfo.Data["dreq"]["cnt"].InnerText;
@@ -538,6 +579,11 @@
             return name;
         }
 
+        /// <summary>
+        /// 收到订阅申请，答应订阅
+        /// </summary>
+        /// <param name="from"></param>
+        /// <returns></returns>
         private bool onSubscriptionRequest(Jid from)
         {
             return true;
@@ -754,8 +800,8 @@
         public bool IsXmppOK
         {
             get
-            { 
-                if (this.m_xmppClient != null && this.m_xmppClient.Connected && IsConnecting && this.m_xmppClient.IsHasRosterOnline)
+            {
+                if (this.m_xmppClient != null && this.m_xmppClient.Connected && SendForSelfStatusConnecting && this.m_xmppClient.IsHasRosterOnline)
                 {
                     return true;
                 }
@@ -770,7 +816,7 @@
         {
             try
             {
-                CommonConfig.Logger.WriteInfo(string.Format("当前连接状态，IsHasRosterOnline:{0},Connected:{1},IsConnecting:{2}", (this.m_xmppClient != null ? this.m_xmppClient.IsHasRosterOnline : false), (this.m_xmppClient != null ? this.m_xmppClient.Connected : false), this.IsConnecting));
+                CommonConfig.Logger.WriteInfo(string.Format("当前连接状态，IsHasRosterOnline:{0},Connected:{1},SendForSelfStatusConnecting:{2}", (this.m_xmppClient != null ? this.m_xmppClient.IsHasRosterOnline : false), (this.m_xmppClient != null ? this.m_xmppClient.Connected : false), this.SendForSelfStatusConnecting));
             }
             catch (Exception ex)
             {
@@ -787,19 +833,21 @@
         private int m_sendForSelfErrorTimes = 0;
         private void SendForSelf()
         {
-            while (true)
+            while (false)   //不启用自发自收，原因：业务已具有自发自收的功能。
             {
                 //60分钟检测一次
                 Thread.Sleep(60 * 1000);
+
+                CommonConfig.Logger.WriteInfo("开始自发自收");
+                string selfJID = m_xmppClient != null ? m_xmppClient.Jid.ToString() : "";  // m_stringUserName + "@" + m_stringDomain + "/" + m_stringResource;
+                ServiceRequestParam request = new ServiceRequestParam();
+                request.serviceId = m_serviceIdForSelf;
+                request.source = DateTime.Now.ToString("HHmmssfff");
+                ServiceResponseData response = new ServiceResponseData();
+                response.resultCode = 1;
+
                 try
                 {
-                    CommonConfig.Logger.WriteInfo("开始自发自收");
-                    string selfJID = m_stringUserName + "@" + m_stringDomain + "/" + m_stringResource;
-                    ServiceRequestParam request = new ServiceRequestParam();
-                    request.serviceId = m_serviceIdForSelf;
-                    request.source = DateTime.Now.ToString("HHmmssfff");
-                    ServiceResponseData response = new ServiceResponseData();
-                    response.resultCode = 1;
                     int result = syncRequestService(selfJID, request, 1, false, 5000, ref response);
                     if (response.resultCode == 0)
                     {
@@ -823,8 +871,8 @@
                     {
                         CommonConfig.Logger.WriteInfo("自发自收失败次数超过3次，准备重连");
                         m_sendForSelfErrorTimes = 0;
-                        //重连。。。
-                        this.Close();
+                        //需要重连
+                        SendForSelfStatusConnecting = false;
                     }
                 }
                 catch (Exception ex1)
