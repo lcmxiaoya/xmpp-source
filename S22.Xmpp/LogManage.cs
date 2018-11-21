@@ -21,7 +21,7 @@
         {
             this.LogCache = new ConcurrentQueue<LogEntity>();
             this.WriteCountPer = 0x3e8;
-            this.DeleteFileDay = 45;
+            this.DeleteFileDay = 30;
             this.CheckDeleteDay = 0;
             this.Init();
         }
