@@ -158,13 +158,17 @@
 
         public void WriteInfo(string content)
         {
-            LogEntity item = new LogEntity {
-                EventTime = DateTime.Now,
-                LogContent = content,
-                LogType = LogTypeDefine.Info,
-                ThreadNo = Thread.CurrentThread.ManagedThreadId
-            };
-            this.LogCache.Enqueue(item);
+            if (CommonConfig.IsPrintLog)
+            {
+                LogEntity item = new LogEntity
+                {
+                    EventTime = DateTime.Now,
+                    LogContent = content,
+                    LogType = LogTypeDefine.Info,
+                    ThreadNo = Thread.CurrentThread.ManagedThreadId
+                };
+                this.LogCache.Enqueue(item);
+            }
         }
 
         private string FilePath
