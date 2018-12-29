@@ -156,9 +156,9 @@
             this.LogCache.Enqueue(item);
         }
 
-        public void WriteInfo(string content)
+        public void WriteInfo(string content,bool notCheckPrint = false)
         {
-            if (CommonConfig.IsPrintLog)
+            if (CommonConfig.IsPrintLog || notCheckPrint)
             {
                 LogEntity item = new LogEntity
                 {

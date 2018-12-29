@@ -64,6 +64,7 @@
         {
             try
             {
+                CommonConfig.Logger.WriteInfo("开始初始化组件domain=" + domain+ ",username=" + username+ ",resource=" + resource+ ",password=" + password+",port"+port,true);
                 this.m_stringDomain = domain;
                 this.m_stringPassword = password;
                 this.m_stringRecvFilePath = recvFilePath;

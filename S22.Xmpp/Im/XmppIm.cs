@@ -123,7 +123,7 @@
         public Roster Connect(string resource = null)
         {
             Roster roster2;
-            CommonConfig.Logger.WriteInfo("开始连接...");
+            CommonConfig.Logger.WriteInfo("开始连接...",true);
             if (this.disposed)
             {
                 throw new ObjectDisposedException(base.GetType().FullName);
@@ -132,7 +132,9 @@
             {
                 try
                 {
+                    CommonConfig.Logger.WriteInfo("协议初始化开始...");
                     extension.Initialize();
+                    CommonConfig.Logger.WriteInfo("协议初始化完成...");
                 }
                 catch (Exception exception)
                 {
@@ -141,8 +143,8 @@
                 }
             }
             try
-            {
-                this.core.Connect(resource);
+            { 
+                this.core.Connect(resource); 
                 this.IsHasRosterOnline = true;
                 if (this.Username == null)
                 {

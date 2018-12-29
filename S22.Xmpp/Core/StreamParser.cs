@@ -25,7 +25,9 @@
                 IgnoreComments = true,
                 IgnoreWhitespace = true
             };
+            CommonConfig.Logger.WriteInfo("开始创建Reader");
             this.reader = XmlReader.Create(stream, settings);
+            CommonConfig.Logger.WriteInfo("完成创建Reader");
             this.ReadRootElement();
         }
 
@@ -45,7 +47,9 @@
 
         public XmlElement NextElement(params string[] expected)
         {
+            //CommonConfig.Logger.WriteInfo("准备执行this.reader.Read()！");
             this.reader.Read();
+            //CommonConfig.Logger.WriteInfo("执行this.reader.Read()完成！");
             if ((this.reader.NodeType == XmlNodeType.EndElement) && (this.reader.Name == "stream:stream"))
             {
                 throw new IOException("The server has closed the XML stream.");
@@ -58,10 +62,14 @@
             {
                 throw new XmlException("Not a start element: " + this.reader.Name);
             }
+            //CommonConfig.Logger.WriteInfo("执行this.reader.ReadSubtree()！");
             using (XmlReader reader = this.reader.ReadSubtree())
             {
+                //CommonConfig.Logger.WriteInfo("执行reader.Read();！");
                 reader.Read();
-                string s = reader.ReadOuterXml();
+                //CommonConfig.Logger.WriteInfo("执行ReadOuterXml！");
+                string s = reader.ReadOuterXml(); 
+                //CommonConfig.Logger.WriteInfo("完成ReadOuterXml！");
                 XmlDocument document = new XmlDocument();
                 using (StringReader reader2 = new StringReader(s))
                 {
@@ -86,6 +94,7 @@
 
         private void ReadRootElement()
         {
+            CommonConfig.Logger.WriteInfo("开始读取跟节点流");
             while (this.reader.Read())
             {
                 XmlNodeType nodeType = this.reader.NodeType;

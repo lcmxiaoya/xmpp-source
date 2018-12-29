@@ -176,8 +176,11 @@
             this.resource = resource;
             try
             {
+                CommonConfig.Logger.WriteInfo("准备建立Socket连接...IP:"+this.ServerIP+",端口："+this.Port);
                 this.client = new TcpClient(this.ServerIP, this.Port);
+                CommonConfig.Logger.WriteInfo("连接完成...");
                 this.stream = this.client.GetStream();
+                CommonConfig.Logger.WriteInfo("GetStream完成...");
                 this.SetupConnection(this.resource);
                 this.Connected = true;
                 Task.Factory.StartNew(new Action(this.ReadXmlStream), TaskCreationOptions.LongRunning);
@@ -297,14 +300,20 @@
         }
 
         private XmlElement InitiateStream(string hostname)
-        {
+        { 
+            CommonConfig.Logger.WriteInfo("InitiateStream,Hostname:" + hostname);
             XmlElement e = Xml.Element("stream:stream", "jabber:client").Attr("to", hostname).Attr("version", "1.0").Attr("xmlns:stream", "http://etherx.jabber.org/streams").Attr("xml:lang", CultureInfo.CurrentCulture.Name);
             this.Send(e.ToXmlString(true, true));
+            CommonConfig.Logger.WriteInfo("Send完成！");
             if (this.parser != null)
             {
+                CommonConfig.Logger.WriteInfo("this.parser.Close()！");
                 this.parser.Close();
+                CommonConfig.Logger.WriteInfo("this.parser.Close()完成！");
             }
+            CommonConfig.Logger.WriteInfo("StreamParser开始！");
             this.parser = new StreamParser(this.stream, true);
+            CommonConfig.Logger.WriteInfo("StreamParser结束！");
             this.Language = this.parser.Language ?? new CultureInfo("en");
             return this.parser.NextElement(new string[] { "stream:features" });
         }
@@ -604,6 +613,7 @@
                 }
                 try
                 {
+                    CommonConfig.Logger.WriteInfo("开始权限控制...");
                     if (this.Authenticate(mechanisms, this.Username, this.Password, this.Hostname)["bind"] != null)
                     {
                         this.Jid = this.BindResource(resource);
